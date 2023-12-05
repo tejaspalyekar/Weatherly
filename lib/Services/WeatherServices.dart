@@ -15,10 +15,8 @@ class WeatherService {
     final response = await http.get(uri);
 
     if (response.statusCode == 200) {
-      print(jsonDecode(response.body));
       return WeatherModel.fromJson(jsonDecode(response.body));
     } else {
-      print(response.statusCode);
       throw Exception('Unable to fetch data');
     }
   }

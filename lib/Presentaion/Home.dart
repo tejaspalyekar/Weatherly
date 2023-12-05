@@ -1,7 +1,8 @@
-
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:weather_app/Model/HourlyWeatherModel.dart';
 import 'package:weather_app/Model/WeatherModel.dart';
+import 'package:weather_app/Services/WeatherHourlyService.dart';
 import 'package:weather_app/Services/WeatherServices.dart';
 import 'package:weather_app/Widgets/loading.dart';
 
@@ -15,8 +16,10 @@ class HomePage extends StatefulWidget {
 class _HomePage extends State<HomePage> {
   static String key = '908ee85c110f2216ce21db52fcc7f214'; //api key
   WeatherModel? weather;
+  HourlyWeatherModel? hrweather;
   final WeatherService? service = WeatherService(apikey: key);
-  late final city;
+  final HourlyService hourlyservice = HourlyService(apikey: key);
+  List<dynamic>? todaysWeather;
   bool searchbox = false;
   double searchboxwidth = 0;
   bool loading = true;
@@ -31,6 +34,7 @@ class _HomePage extends State<HomePage> {
         weather = weathers;
         loading = false;
       });
+      await fetchhourlyweatherdata();
     } catch (e) {
       print(e);
     }
@@ -48,6 +52,19 @@ class _HomePage extends State<HomePage> {
     } catch (e) {
       print(e);
     }
+  }
+
+  fetchhourlyweatherdata() async {
+    final listofweather =
+        await hourlyservice.fetchHourlydata(weather!.cityName);
+      hrweather = listofweather;
+      
+      List<dynamic> todayweather =  hrweather!.todaysWeather();
+      setState(() {
+         todaysWeather = todayweather;
+
+      });
+    
   }
 
   @override
@@ -87,8 +104,6 @@ class _HomePage extends State<HomePage> {
               height: 50,
               width: searchboxwidth,
               child: TextField(
-                autofocus: true,
-                
                 controller: searched_City,
                 cursorColor: const Color.fromARGB(183, 255, 255, 255),
                 style: const TextStyle(color: Colors.white, fontSize: 18),
@@ -104,6 +119,7 @@ class _HomePage extends State<HomePage> {
             ),
             IconButton(
                 onPressed: () {
+                  print(hrweather?.list);
                   if (searchbox == true) {
                     if (searched_City.text == "") {
                       setState(() {
@@ -158,7 +174,6 @@ class _HomePage extends State<HomePage> {
                           'Assets/waterloading.json',
                           width: 300,
                           height: 240,
-                          
                         )
                       : Column(
                           mainAxisAlignment: MainAxisAlignment.start,
@@ -198,55 +213,58 @@ class _HomePage extends State<HomePage> {
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
                   margin: const EdgeInsets.only(left: 20, right: 20),
                   width: double.infinity,
-                  height: 300,
                   decoration: BoxDecoration(
                     color: const Color.fromARGB(134, 69, 90, 100),
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: loading? Loadingscreen(): Column(
-                    children: [
-                      Expanded(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  child: loading
+                      ? const Loadingscreen()
+                      : Column(
                           children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                            Row(
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: [
-                                Text('wind speed ${weather?.windspeed}',
-                                    style: const TextStyle(
-                                        color: Colors.white, fontSize: 18)),
-                                Text('wind degree ${weather?.winddegree}',
-                                    style: const TextStyle(
-                                        color: Colors.white, fontSize: 18)),
-                                Text('Visibility ${weather?.visibility}',
-                                    style: const TextStyle(
-                                        color: Colors.white, fontSize: 18))
+                                Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceAround,
+                                  children: [
+                                    Text('wind speed ${weather?.windspeed}',
+                                        style: const TextStyle(
+                                            color: Colors.white, fontSize: 18)),
+                                    Text('wind degree ${weather?.winddegree}',
+                                        style: const TextStyle(
+                                            color: Colors.white, fontSize: 18)),
+                                    Text('Visibility ${weather?.visibility}',
+                                        style: const TextStyle(
+                                            color: Colors.white, fontSize: 18))
+                                  ],
+                                ),
+                                Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceAround,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Max Temp ${weather?.maxtemp.round()}',
+                                        style: const TextStyle(
+                                            color: Colors.white, fontSize: 18)),
+                                    Text('Min Temp ${weather?.mintemp.round()}',
+                                        style: const TextStyle(
+                                            color: Colors.white, fontSize: 18)),
+                                    Text('Pressure ${weather?.pressure}',
+                                        style: const TextStyle(
+                                            color: Colors.white, fontSize: 18)),
+                                  ],
+                                )
                               ],
                             ),
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('Max Temp ${weather?.maxtemp.round()}',
-                                    style: const TextStyle(
-                                        color: Colors.white, fontSize: 18)),
-                                Text('Min Temp ${weather?.mintemp.round()}',
-                                    style: const TextStyle(
-                                        color: Colors.white, fontSize: 18)),
-                                Text('Pressure ${weather?.pressure}',
-                                    style: const TextStyle(
-                                        color: Colors.white, fontSize: 18)),
-                              ],
-                            )
+                            Text('Humidity ${weather?.humidity}',
+                                style: const TextStyle(
+                                    color: Colors.white, fontSize: 18)),
                           ],
                         ),
-                      ),
-                      Text('Humidity ${weather?.humidity}',
-                          style: const TextStyle(
-                              color: Colors.white, fontSize: 18)),
-                    ],
-                  ),
                 ),
               ],
             ),
