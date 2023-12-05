@@ -4,6 +4,7 @@ import 'package:weather_app/Model/HourlyWeatherModel.dart';
 import 'package:weather_app/Model/WeatherModel.dart';
 import 'package:weather_app/Services/WeatherHourlyService.dart';
 import 'package:weather_app/Services/WeatherServices.dart';
+import 'package:weather_app/Widgets/LoadingScreenTodays.dart';
 import 'package:weather_app/Widgets/loading.dart';
 
 class HomePage extends StatefulWidget {
@@ -19,22 +20,22 @@ class _HomePage extends State<HomePage> {
   HourlyWeatherModel? hrweather;
   final WeatherService? service = WeatherService(apikey: key);
   final HourlyService hourlyservice = HourlyService(apikey: key);
-  List<dynamic>? todaysWeather;
+  List<dynamic> todaysWeather = [];
   bool searchbox = false;
   double searchboxwidth = 0;
   bool loading = true;
+  bool loadingtodaysdata = true;
   TextEditingController searched_City = TextEditingController();
 
   fetchtemp() async {
     final citys = await service?.currentCity();
-
     try {
       final weathers = await service?.getWeather(citys!);
       setState(() {
         weather = weathers;
         loading = false;
       });
-      await fetchhourlyweatherdata();
+      await fetchhourlyweatherdata(weather!.cityName);
     } catch (e) {
       print(e);
     }
@@ -49,22 +50,21 @@ class _HomePage extends State<HomePage> {
         searchbox = false;
         searchboxwidth = 0;
       });
+      await fetchhourlyweatherdata(city);
     } catch (e) {
       print(e);
     }
   }
 
-  fetchhourlyweatherdata() async {
-    final listofweather =
-        await hourlyservice.fetchHourlydata(weather!.cityName);
-      hrweather = listofweather;
-      
-      List<dynamic> todayweather =  hrweather!.todaysWeather();
-      setState(() {
-         todaysWeather = todayweather;
+  fetchhourlyweatherdata(city) async {
+    final listofweather = await hourlyservice.fetchHourlydata(city);
+    hrweather = listofweather;
 
-      });
-    
+    List<dynamic> todayweather = hrweather!.todaysWeather();
+    setState(() {
+      todaysWeather = todayweather;
+      loadingtodaysdata = false;
+    });
   }
 
   @override
@@ -78,12 +78,12 @@ class _HomePage extends State<HomePage> {
       return 'Assets/cloud.json';
     } else if (main.toLowerCase() == "rain") {
       return 'Assets/rainy.json';
-    } else if (main.toLowerCase() == "haze" || main.toLowerCase() == "fog") {
-      return 'Assets/haze.json';
+    } else if (main.toLowerCase() == "snow") {
+      return 'Assets/snow.json';
     } else if (main.toLowerCase() == "mist") {
       return 'Assets/mist.json';
     }
-    return 'Assets/snow.json';
+    return 'Assets/haze.json';
   }
 
   @override
@@ -129,6 +129,7 @@ class _HomePage extends State<HomePage> {
                     } else {
                       setState(() {
                         loading = true;
+                        loadingtodaysdata = true;
                       });
                       fetchtempofsearchcity(searched_City.text);
                       searched_City.text = "";
@@ -233,9 +234,15 @@ class _HomePage extends State<HomePage> {
                                     Text('wind speed ${weather?.windspeed}',
                                         style: const TextStyle(
                                             color: Colors.white, fontSize: 18)),
+                                    const SizedBox(
+                                      height: 5,
+                                    ),
                                     Text('wind degree ${weather?.winddegree}',
                                         style: const TextStyle(
                                             color: Colors.white, fontSize: 18)),
+                                    const SizedBox(
+                                      height: 5,
+                                    ),
                                     Text('Visibility ${weather?.visibility}',
                                         style: const TextStyle(
                                             color: Colors.white, fontSize: 18))
@@ -250,9 +257,15 @@ class _HomePage extends State<HomePage> {
                                     Text('Max Temp ${weather?.maxtemp.round()}',
                                         style: const TextStyle(
                                             color: Colors.white, fontSize: 18)),
+                                    const SizedBox(
+                                      height: 5,
+                                    ),
                                     Text('Min Temp ${weather?.mintemp.round()}',
                                         style: const TextStyle(
                                             color: Colors.white, fontSize: 18)),
+                                    const SizedBox(
+                                      height: 5,
+                                    ),
                                     Text('Pressure ${weather?.pressure}',
                                         style: const TextStyle(
                                             color: Colors.white, fontSize: 18)),
@@ -260,12 +273,87 @@ class _HomePage extends State<HomePage> {
                                 )
                               ],
                             ),
+                            const SizedBox(
+                              height: 5,
+                            ),
                             Text('Humidity ${weather?.humidity}',
                                 style: const TextStyle(
                                     color: Colors.white, fontSize: 18)),
                           ],
                         ),
                 ),
+                const SizedBox(
+                  height: 20,
+                ),
+                Container(
+                    padding: const EdgeInsets.only(left: 20),
+                    width: double.infinity,
+                    child: const Text(
+                      "Today",
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 25,
+                          fontWeight: FontWeight.w600),
+                      textAlign: TextAlign.left,
+                    )),
+                Container(
+                  height: 250,
+                  margin: const EdgeInsets.symmetric(horizontal: 10),
+                  decoration: const BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(20))),
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: loadingtodaysdata ? 5 : todaysWeather.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      print(loadingtodaysdata);
+                      String time ="";
+                      String main ="";
+                      double temp =0.0;
+                      if (!loadingtodaysdata) {
+                        temp =
+                            todaysWeather[index]["main"]["temp"] - 273.15;
+                       main = todaysWeather[index]["weather"][0]["main"]
+                            .toString();
+                        time = todaysWeather[index]["dt_txt"];
+                      }
+
+                      return loadingtodaysdata == true
+                          ? const LoadingscreenTodaysdata()
+                          : Container(
+                              padding: const EdgeInsets.all(20),
+                              margin: const EdgeInsets.all(5),
+                              decoration: BoxDecoration(
+                                  color: Colors.blueGrey[400],
+                                  border: Border.all(color: Colors.white),
+                                  borderRadius: BorderRadius.circular(10)),
+                              child: Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  LottieBuilder.asset(
+                                    returnlottie(main),
+                                    width: 100,
+                                  ),
+                                  Text('${temp.round()}°C',
+                                      style: const TextStyle(
+                                          color: Color.fromARGB(255, 9, 0, 51),
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.w600)),
+                                  Text(main,
+                                      style: const TextStyle(
+                                          color: Color.fromARGB(255, 9, 0, 51),
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w600)),
+                                  Text(time.substring(11, 16),
+                                      style: const TextStyle(
+                                          color: Color.fromARGB(255, 2, 0, 68),
+                                          fontSize: 18))
+                                ],
+                              ),
+                            );
+                    },
+                  ),
+                )
               ],
             ),
           ),

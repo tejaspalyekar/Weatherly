@@ -7,8 +7,8 @@ class Loadingscreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Shimmer.fromColors(
-      highlightColor: Color.fromARGB(122, 170, 170, 170),
-      baseColor: Color.fromARGB(117, 139, 139, 139),
+      highlightColor: const Color.fromARGB(122, 170, 170, 170),
+      baseColor: const Color.fromARGB(117, 139, 139, 139),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
@@ -23,6 +23,9 @@ class Loadingscreen extends StatelessWidget {
                 ),
                 width: 120,
               ),
+              const SizedBox(
+                height: 10,
+              ),
               Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(20),
@@ -30,6 +33,9 @@ class Loadingscreen extends StatelessWidget {
                 ),
                 height: 30,
                 width: 120,
+              ),
+              const SizedBox(
+                height: 10,
               ),
               Container(
                 decoration: BoxDecoration(
@@ -52,6 +58,9 @@ class Loadingscreen extends StatelessWidget {
                 height: 30,
                 width: 120,
               ),
+              const SizedBox(
+                height: 10,
+              ),
               Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(20),
@@ -59,6 +68,9 @@ class Loadingscreen extends StatelessWidget {
                 ),
                 height: 30,
                 width: 120,
+              ),
+              const SizedBox(
+                height: 10,
               ),
               Container(
                 decoration: BoxDecoration(
