@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:weather_app/Model/WeatherModel.dart';
 import 'package:weather_app/Services/WeatherServices.dart';
-import 'package:weather_app/loading.dart';
+import 'package:weather_app/Widgets/loading.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
