@@ -13,7 +13,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePage extends State<HomePage> {
-  static String key = '908ee85c110f2216ce21db52fcc7f214';
+  static String key = '908ee85c110f2216ce21db52fcc7f214'; //api key
   WeatherModel? weather;
   final WeatherService? service = WeatherService(apikey: key);
   late final city;
