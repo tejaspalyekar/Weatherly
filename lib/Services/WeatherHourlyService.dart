@@ -4,14 +4,15 @@ import 'package:http/http.dart' as http;
 import 'package:weather_app/Model/HourlyWeatherModel.dart';
 
 class HourlyService {
-  HourlyService({required this.apikey});
+  http.Client client = http.Client();
+  HourlyService({required this.apikey, client});
 
   String apikey;
   String url = 'https://api.openweathermap.org/data/2.5/forecast';
 
   Future<HourlyWeatherModel> fetchHourlydata(String city) async {
     final uri = Uri.parse('$url?q=$city&appid=$apikey');
-    final response = await http.get(uri);
+    final response = await client.get(uri);
     if (response.statusCode == 200) {
       print(jsonDecode(response.body));
       return HourlyWeatherModel.fromJson(jsonDecode(response.body));

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:lottie/lottie.dart';
 import 'package:weather_app/Model/HourlyWeatherModel.dart';
 import 'package:weather_app/Model/WeatherModel.dart';
@@ -8,7 +9,8 @@ import 'package:weather_app/Widgets/LoadingScreenTodays.dart';
 import 'package:weather_app/Widgets/loading.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  HomePage({super.key, required this.httpClient});
+  Client httpClient;
 
   @override
   State<HomePage> createState() => _HomePage();
@@ -18,7 +20,7 @@ class _HomePage extends State<HomePage> {
   static String key = '908ee85c110f2216ce21db52fcc7f214'; //api key
   WeatherModel? weather;
   HourlyWeatherModel? hrweather;
-  final WeatherService? service = WeatherService(apikey: key);
+  WeatherService? service;
   final HourlyService hourlyservice = HourlyService(apikey: key);
   List<dynamic> todaysWeather = [];
   bool searchbox = false;
@@ -70,6 +72,7 @@ class _HomePage extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    service = WeatherService(apikey: key, client: widget.httpClient);
     fetchtemp();
   }
 
@@ -285,17 +288,17 @@ class _HomePage extends State<HomePage> {
                 const SizedBox(
                   height: 20,
                 ),
-                Container(
-                    padding: const EdgeInsets.only(left: 20),
-                    width: double.infinity,
-                    child: const Text(
-                      "Today",
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 25,
-                          fontWeight: FontWeight.w600),
-                      textAlign: TextAlign.left,
-                    )),
+                // Container(
+                //     padding: const EdgeInsets.only(left: 20),
+                //     width: double.infinity,
+                //     child: const Text(
+                //       "Today",
+                //       style: TextStyle(
+                //           color: Colors.white,
+                //           fontSize: 25,
+                //           fontWeight: FontWeight.w600),
+                //       textAlign: TextAlign.left,
+                //     )),
                 Container(
                   height: 250,
                   margin: const EdgeInsets.symmetric(horizontal: 10),
@@ -306,13 +309,12 @@ class _HomePage extends State<HomePage> {
                     itemCount: loadingtodaysdata ? 5 : todaysWeather.length,
                     itemBuilder: (BuildContext context, int index) {
                       print(loadingtodaysdata);
-                      String time ="";
-                      String main ="";
-                      double temp =0.0;
+                      String time = "";
+                      String main = "";
+                      double temp = 0.0;
                       if (!loadingtodaysdata) {
-                        temp =
-                            todaysWeather[index]["main"]["temp"] - 273.15;
-                       main = todaysWeather[index]["weather"][0]["main"]
+                        temp = todaysWeather[index]["main"]["temp"] - 273.15;
+                        main = todaysWeather[index]["weather"][0]["main"]
                             .toString();
                         time = todaysWeather[index]["dt_txt"];
                       }
